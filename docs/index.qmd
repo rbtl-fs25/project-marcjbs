@@ -1,0 +1,168 @@
+---
+title: "Habits of biowaste management of swiss people"
+subtitle: "Capstone Project"
+date: today
+author: "Marc Sauter"
+format:
+  html:
+    toc: true
+    embed-resources: true
+editor: visual
+execute:
+  warning: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(gt)
+library(gtsummary)
+library(knitr)
+library(DT)
+library(ggplot2)
+library(patchwork)
+
+biowaste <- read_csv(here::here("data/processed/survey_data_cleaned.csv"))
+```
+
+# Introduction
+
+Bio waste separation is an important part in many countries as it fills up landfills with wastes that still can be used in other places. Simply by composting bio wastes, filling up of landfills would be reduced and as another advantage, usable earth can be generated with composting.
+
+# Methods
+
+In order to obtain the needed data to make statements about the bio waste management behaviour of swiss people, a survey was used. This survey was created using the tool Google Forms. It was comprised of twelve to sixteen questions, depending on some answers chosen. Some answers to questions needed further questions to gather even more relevant information.
+
+The survey was built up in two parts. The first part covered more general questions about the person answering the survey, such as age, gender, living situation, education, employment type and more. The second part was more focused on the (bio)waste aspect. Questions include information about whether bio waste was currently being recycled, how much bio waste was generated in the household per week in liters or what other solid wastes were recycled in the household.
+
+The survey was shared online, the data collected was then processed using R with the tidyverse library.
+
+# Results
+
+In @tbl-bio-1 an overview over the bio waste separation habits depending on the persons age can be seen. It is shown, that more people have a habit of separating bio wastes.
+
+```{r}
+#| echo: false
+#| label: tbl-bio-1
+#| tbl-cap: "Bio waste separation depending on age"
+
+biowaste_separation_age_tbl <- biowaste |> 
+  group_by(biowaste_separation) |> 
+  summarise(
+    Count = n(),
+    Mean = mean(age, na.rm = TRUE),
+    sd = sd(age, na.rm =TRUE),
+    Median = median(age, na.rm = TRUE),
+    Min = min(age, na.rm =TRUE),
+    Max = max(age, na.rm = TRUE)
+  )
+
+
+biowaste_separation_age_tbl |> 
+  gt() |> 
+  tab_header(title = "Bio waste separation depending on age") |> 
+  fmt_number(columns = Mean:sd, decimals = 2) |> 
+  cols_label(biowaste_separation = "Bio waste separation")
+  
+```
+
+@fig-bio-1 shows the general relationship between the household size and the separation habits of bio wastes. It can be seen that generally bigger households tend to not separate their bio waste. This could be explained by a lack of feeling responsible for the task in a bigger household.
+
+```{r}
+#| echo: false
+#| label: fig-bio-1
+#| fig-cap: "Relationship between the household size and the separation of bio wastes"
+#| fig-align: center
+
+
+biowaste$household <- as.factor(biowaste$household)
+
+ggplot(data = biowaste,
+       mapping = aes(x = biowaste_separation, 
+                     fill = household)
+       ) + 
+  geom_bar() + 
+  labs(title = "Relationship between household size and separation of bio wastes",
+       x = "Bio waste separation", 
+       y = "Amount",
+       fill = "Household size")
+```
+
+Another interesting indicator is shown in @fig-bio-2. There the perceived convenience of the currently implemented bio waste management system in the neighbourhood is correlated with the general bio waste separation. It is interesting to see, that respondents who rated their bio waste disposal system as more convenient were significantly more likely to separate their bio waste. This suggests that if more people found the system convenient - whether due to better infrastructure, more frequent collection or a monetary incentive - bio waste separation rates would likely increase.
+
+```{r}
+#| echo: false
+#| label: fig-bio-2
+#| fig-cap: "Relationship between the perceived convenience of already implemented bio waste management systems against the bio waste separation of the surveyed people."
+#| fig-align: center
+
+ggplot(data = biowaste, aes(x = biowaste_system_convenience, 
+                            y = biowaste_separation)) +
+  geom_jitter(width = 0.2, height = 0.1, alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Convenience vs Biowaste Separation",
+       x = "Perceived Convenience",
+       y = "Biowaste Separation") +
+  theme_minimal()
+```
+
+From the respondents answering that they are not separating their bio waste, @fig-bio-3 shows how they reacted to different improvement suggestions. The first suggestion was to introduce some sort of monetary incentive if people would start separating bio wastes. This was generally not as welcome as the second option, which was to improve the existing facilities, e.g. more frequent pick ups.
+
+```{r}
+#| echo: false
+#| label: fig-bio-3
+#| fig-cap: "Relationships of peoples answers to the introduction of improvements to the current bio waste management. On the left hand side are the responses to a monetary gain, on the right hand side the responses to improving existing facilities. "
+#| fig-align: center
+
+
+
+biowaste_done <- filter(biowaste, !is.na(biowaste_begin_monetary)) |> 
+  count(biowaste_begin_monetary) |> 
+  mutate(share_mon = n / sum(n),
+         label = scales::percent(share_mon, accuracy = 1))
+  
+
+
+p1 <- ggplot(biowaste_done, 
+             aes(x = "", 
+                 y = share_mon, 
+                 fill = biowaste_begin_monetary)) +
+  geom_col(width = 1) +
+  coord_polar(theta = "y") +
+  theme_void()+
+  labs(fill = "Introduction of monetary gain?")
+
+
+biowaste_done <- filter(biowaste, !is.na(biowaste_begin_facilities)) |> 
+  count(biowaste_begin_facilities) |> 
+  mutate(share_fac = n / sum(n),
+         label = scales::percent(share_fac, accuracy = 1))
+
+
+p2 <- ggplot(biowaste_done, 
+             aes(x = "", 
+                 y = share_fac, 
+                 fill = biowaste_begin_facilities)) +
+  geom_col(width = 1) +
+  coord_polar(theta = "y") +
+  theme_void()+
+  labs(fill = "Improvement of existing facilities?")
+
+
+p1 + p2
+```
+
+# Conclusion
+
+-   A large fraction of the people surveyed already separate bio waste from solid wastes.
+
+-   Larger households tend to lead to a lack in bio waste separation.
+
+-   From the people surveyed not separating bio wastes, a larger fraction prefers to improve existing facilities instead of introducing a monetary gain.
+
+-   The perceived convenience by the surveyed people conincides with the bio waste separation habits.
+
+# References
