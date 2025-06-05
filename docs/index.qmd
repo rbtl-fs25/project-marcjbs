@@ -1,5 +1,5 @@
 ---
-title: "Habits of biowaste management of swiss people"
+title: "Habits of bio waste management of swiss people"
 subtitle: "Capstone Project"
 date: today
 author: 
