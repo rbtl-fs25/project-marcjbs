@@ -42,7 +42,7 @@ biowaste <- read_csv(here::here("data/processed/survey_data_cleaned.csv"))
 
 # Introduction
 
-As mentioned in REFERENCE1 organic waste in landfills generates methane, a potent greenhouse gas (28 - 36x stronger than CO2 over 100 years). Failing to compost those organic wastes results in unnecessary greenhouse gas emissions and landfill leachate, which can contaminate groundwater and soil. Additionally you loose the advantage of composted bio waste which improves the soil structure, fertility, and microbial diversity REFERENCE2. Also incinerating bio waste is less efficient and more polluting than composting or anaerobic digestion according to REFERENCE3. Due to the high water content in food/bio waste reduces the combustion efficiency and increases flue gas emissions.
+As mentioned in @kaza2018what organic waste in landfills generates methane, a potent greenhouse gas (28 - 36x stronger than CO2 over 100 years). Failing to compost those organic wastes results in unnecessary greenhouse gas emissions and landfill leachate, which can contaminate groundwater and soil. Additionally you loose the advantage of composted bio waste which improves the soil structure, fertility, and microbial diversity (@ho2022compost). Also incinerating bio waste is less efficient and more polluting than composting or anaerobic digestion according to @bernstad2012review. Due to the high water content in food/bio waste reduces the combustion efficiency and increases flue gas emissions.
 
 To gain an understanding in the habits of separating bio waste of swiss people, a survey is conducted in the context of the lecture "Research beyond the lab" at ETH Zurich.
 
